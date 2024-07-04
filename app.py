@@ -19,7 +19,13 @@ def crear_app():
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             div_titulo = soup.find('div', class_='tdi_194').find('h3').text.strip()
-            div_noticias = soup.find('div', id='tdi_195').findAll('div', class_='td-cpt-post')
+            element_tdi_bloque_noticias_196 = "div#tdi_196"
+            element_tdi_196 = soup.select_one(element_tdi_bloque_noticias_196)
+            print(element_tdi_196)
+            if element_tdi_196:
+                div_noticias = soup.find('div', id='tdi_196').findAll('div', class_='td-cpt-post')
+            else:
+                div_noticias = soup.find('div', id='tdi_195').findAll('div', class_='td-cpt-post')
 
             lista_noticias = []
             for noticia in div_noticias:
@@ -59,15 +65,23 @@ def crear_app():
 
     @app.route("/api/obtener-detalle-noticia")
     def getDetalleNoticias():
+        user_agent = request.headers.get('User-Agent')
         urlDetalleNoticia = request.args.get('url')
-        headers={'User-Agent':'mozilla/5.0'}
+        headers={'User-Agent': user_agent}
         response = requests.get(urlDetalleNoticia, headers=headers, verify=True)
-        print("response", response)
+        
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
-            imagen_noticia = soup.find('div', class_='tdb_single_featured_image').find('figure').find('img').get('src')
+
+            imagen_noticia = soup.find('div', class_='tdb_single_featured_image').find('img').get('src')
             titulo_noticia = soup.find('h1', class_='tdb-title-text').text.strip()
-            sub_titulo_noticia = soup.find('div', class_='tdb_single_subtitle').find('h2').text.strip()
+
+            selector = "div.tdb_single_subtitle h2"
+            element_figure_subtitle = soup.select_one(selector)
+            sub_titulo_noticia = ""
+            if element_figure_subtitle is not None:
+                sub_titulo_noticia += soup.find('div', class_='tdb_single_subtitle').find('h2').text.strip()
+
             textos_noticia = soup.find('div', class_='tdb_single_content').find('div', class_='tdb-block-inner').findAll('p')
             fecha_noticia = soup.find('time', class_='entry-date').text.strip()
             categoria_noticia = soup.find('div', class_='tdb-category').find('a').text.strip()
@@ -95,15 +109,22 @@ def crear_app():
 
     @app.route("/api/obtener-categorias-noticias")
     def getCategoriaNoticias():
+        user_agent = request.headers.get('User-Agent')
+        boolCategoriaNoticia = request.args.get('url-bool')
         urlCategoriaNoticia = request.args.get('url-categoria')
-        headers={'User-Agent':'mozilla/5.0'}
-        response = requests.get(urlCategoriaNoticia, headers=headers, verify=True)
+        seccionCategoriaNoticia = request.args.get('seccion')
+        headers={'User-Agent': user_agent}
+
+        if boolCategoriaNoticia == "true":
+            response = requests.get(urlCategoriaNoticia, headers=headers, verify=True)
+        else:
+            url = "https://ultimasnoticias.com.ve/seccion/"
+            response = requests.get(url+seccionCategoriaNoticia, headers=headers, verify=True)
 
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             div_titulo = soup.find('h1', class_='tdb-title-text').text.strip()
             div_noticias = soup.find('div', id='tdi_90').findAll('div', class_='td-cpt-post')
-            print("div_noticias", div_noticias)
 
             lista_noticias = []
             for noticia in div_noticias:
