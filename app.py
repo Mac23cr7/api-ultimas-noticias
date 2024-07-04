@@ -18,46 +18,43 @@ def crear_app():
 
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
-            div_titulo = soup.find('div', class_='tdi_194').find('h3').text.strip()
-            element_tdi_bloque_noticias_196 = "div#tdi_196"
-            element_tdi_196 = soup.select_one(element_tdi_bloque_noticias_196)
-            print(element_tdi_196)
-            if element_tdi_196:
-                div_noticias = soup.find('div', id='tdi_196').findAll('div', class_='td-cpt-post')
-            else:
-                div_noticias = soup.find('div', id='tdi_195').findAll('div', class_='td-cpt-post')
-
+            #div_titulo = soup.find('div', class_='tdi_194').find('h3').text.strip()
+            element_tdi_bloque_noticias_203 = "div#tdi_203" #DIV EN ESTE MOMENTO 04-07-2024
+            element_tdi_203 = soup.select_one(element_tdi_bloque_noticias_203)
             lista_noticias = []
-            for noticia in div_noticias:
-                #image_container
-                image_container = noticia.find('div', class_='td-image-container')
-                href_noticia = image_container.find('a').get('href')
-                thum_noticia = image_container.find('span').get('data-img-url')
+            if element_tdi_203:
+                div_noticias = soup.find('div', id='tdi_203').findAll('div', class_='td-cpt-post')
 
-                #meta_info
-                meta_info = noticia.find('div', class_='td-module-meta-info')
-                href_categoria = meta_info.find('a').get('href')
-                name_href_categoria = meta_info.find('a').text.strip()
+                for noticia in div_noticias:
+                    #image_container
+                    image_container = noticia.find('div', class_='td-image-container')
+                    href_noticia = image_container.find('a').get('href')
+                    thum_noticia = image_container.find('span').get('data-img-url')
 
-                meta_detalle_noticia = meta_info.find('h3')
-                href_detalle_noticia = meta_detalle_noticia.find('a').get('href')
-                texto_detalle_noticia = meta_detalle_noticia.find('a').text.strip()
+                    #meta_info
+                    meta_info = noticia.find('div', class_='td-module-meta-info')
+                    href_categoria = meta_info.find('a').get('href')
+                    name_href_categoria = meta_info.find('a').text.strip()
 
-                meta_fecha_noticia = meta_info.find('div', class_='td-editor-date')
-                fecha_detalle_noticia = meta_fecha_noticia.find('time', class_='td-module-date').text.strip()
+                    meta_detalle_noticia = meta_info.find('h3')
+                    href_detalle_noticia = meta_detalle_noticia.find('a').get('href')
+                    texto_detalle_noticia = meta_detalle_noticia.find('a').text.strip()
 
-                lista_noticias.append(
-                    {
-                        'thumb_image': thum_noticia,
-                        'name_category': name_href_categoria,
-                        'href_category': href_categoria,
-                        'href_detail_news': href_detalle_noticia,
-                        'text_detail_news': texto_detalle_noticia,
-                        'date_news': fecha_detalle_noticia
-                    }
-                )
+                    meta_fecha_noticia = meta_info.find('div', class_='td-editor-date')
+                    fecha_detalle_noticia = meta_fecha_noticia.find('time', class_='td-module-date').text.strip()
 
-            return jsonify({'title': div_titulo, 'data': lista_noticias})
+                    lista_noticias.append(
+                        {
+                            'thumb_image': thum_noticia,
+                            'name_category': name_href_categoria,
+                            'href_category': href_categoria,
+                            'href_detail_news': href_detalle_noticia,
+                            'text_detail_news': texto_detalle_noticia,
+                            'date_news': fecha_detalle_noticia
+                        }
+                    )
+
+            return jsonify({'title': 'Actualidad', 'data': lista_noticias})
         else:
             error = {'error': 'Ocurrio un error interno'}
             return jsonify(error)
